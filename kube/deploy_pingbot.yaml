@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingbot
+  namespace: robots
+  labels:
+    app: pingbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingbot
+  template:
+    metadata:
+      labels:
+        app: pingbot
+    spec:
+      containers:
+        - name: pingbot
+          image: jarrance/pingbot:latest
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+          env:
+            - name: HOSTS
+              value: '/dnsmasq-configs/hosts'
+            - name: GITURL
+              value: 'http://gitlab/jarrance/dnsmasq-configs.git'
+            - name: GITROOT
+              value: '/home/pi/Documents'
+          ports:
+            - containerPort: 9002

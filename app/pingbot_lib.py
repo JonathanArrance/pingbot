@@ -15,12 +15,19 @@ class Operations():
         self.giturl = settings.CONFIG['GITURL']
         self.gitroot = settings.CONFIG['GITROOT']
     
-    def git_clone(self,input_dict):
-        try:
-            Repo.clone_from(self.giturl, self.gitroot, recursive=True)
-        except Exception as e:
-            logging.error(e)
-            raise e
+    def git_clone(self,input_dict={}):
+        if len(input_dict) > 0:
+            try:
+                Repo.clone_from(input_dict['giturl'], input_dict['gitroot'], recursive=True)
+            except Exception as e:
+                logging.error(e)
+                raise e
+        else:
+            try:
+                Repo.clone_from(self.giturl, self.gitroot, recursive=True)
+            except Exception as e:
+                logging.error(e)
+                raise e
     
     def split_up_list(self,input_list):
         """
@@ -36,8 +43,7 @@ class Operations():
         except Exception as e:
             logging.error("Could not split up the host ip list.")
             logging.error(e)
-        
-    
+
     def read_hosts_file(self,host_file):
         """
         DESC: return a list of ip and hostname dictionaries from a unix style hosts file.
@@ -114,9 +120,9 @@ class Prometheus():
 
     def start_server(self):
         start_http_server(9002)
-        self.total_success = Counter('pingbot_total_success','Pingbot total successful ping',['hostname','ip'])
-        self.total_fail = Counter('pingbot_total_fail','Pingbot total failed ping',['hostname','ip'])
-        self.ping = Gauge('pingbot_ping', 'The current Pingbot ping job.',['hostname','ip'])
+        self.total_success = Counter('pingbot_total_success','Pingbot total successful ping',['hostname','ip','production'])
+        self.total_fail = Counter('pingbot_total_fail','Pingbot total failed ping',['hostname','ip','production'])
+        self.ping = Gauge('pingbot_ping', 'The current Pingbot ping job.',['hostname','ip','production'])
     
     def current_ping(self,input_dict):
         """
@@ -124,19 +130,19 @@ class Prometheus():
         INPUT: input_dict - hostname - hostname
                                      - ip     - ip address
                                      - status - True/False
+                                     - production
         OUTPUT: None
         NOTE: This is a Gauge
         """
+        print(input_dict)
         status = 0.0
         if input_dict['status'] == True:
-            print("dingdong")
             status = 1.0
-        
         try:
             logging.info("Emitting ping metrics.")
-            self.ping.labels(input_dict['hostname'],input_dict['ip']).set(status)
-            self.total_success.labels(input_dict['hostname'],input_dict['ip']).inc()
+            self.ping.labels(input_dict['hostname'],input_dict['ip'],input_dict['production']).set(status)
+            self.total_success.labels(input_dict['hostname'],input_dict['ip'],input_dict['production']).inc()
         except Exception as e:
-            self.ping.total_fail(input_dict['hostname'],input_dict['ip']).inc()
+            self.ping.total_fail(input_dict['hostname'],input_dict['ip'],input_dict['production']).inc()
             logging.error(e)
             logging.error("Could not emit the ping metric.")

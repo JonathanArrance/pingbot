@@ -10,7 +10,8 @@ GITURL = os.getenv('GITURL',None)
 #Should the repo get cloned
 CLONEREPO = os.getenv('CLONEREPO',False)
 if type(CLONEREPO) != 'bool':
-    if CLONEREPO == 'False':
+    #need to get an ignore case operation here
+    if CLONEREPO== 'False':
         CLONEREPO = False
     else:
         CLONEREPO = True

@@ -15,12 +15,9 @@ def pinghost(input_list):
     for host in input_list:
         success = o.ping(host['ip'])
         if success:
-            print('abbadoo %s'%host['ip'])
-            pr.current_ping({'hostname':host['hostname'],'ip':host['ip'],'status':True})
+            pr.current_ping({'hostname':host['hostname'],'ip':host['ip'],'production':host['production'],'status':True})
         else:
-            print('boob %s'%host['ip'])
-            pr.current_ping({'hostname':host['hostname'],'ip':host['ip'],'status':False})
-            
+            pr.current_ping({'hostname':host['hostname'],'ip':host['ip'],'production':host['production'],'status':False})
 
 def main():
 
@@ -55,24 +52,10 @@ def main():
             logging.error("Could not split up the ip list.")
             logging.error(e)
 
+        #slow things down a little - lead into multi processor support
         for chunk in split_list:
             pinghost(chunk)
 
-        """
-        try:
-            process = [multiprocessing.Process(target=pinghost, args=(chunk,)) for chunk in split_list]
-
-            for p in process:
-                p.start()
-
-            for p in process:
-                p.join()
-                p.terminate()
-
-        except Exception as e:
-            logging.error("Could not process the chunk of hosts.")
-            logging.error(e)
-        """
         time.sleep(settings.CONFIG['INTERVAL'])
 
 if __name__ == '__main__':
