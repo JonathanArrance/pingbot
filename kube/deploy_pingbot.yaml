@@ -29,5 +29,9 @@ spec:
               value: 'http://gitlab/jarrance/dnsmasq-configs.git'
             - name: GITROOT
               value: '/home/pi/Documents'
+            - name: INTERVAL
+              value: 120
+            - name: CLONEREPO
+              value: True
           ports:
             - containerPort: 9002
